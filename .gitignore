@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+venv/
+.venv/
+mlruns/
+mlruns.db
+target/
+dbt_packages/
+logs/
+*.pbix
+data/raw/
