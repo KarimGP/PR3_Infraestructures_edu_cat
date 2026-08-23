@@ -57,27 +57,50 @@ CREATE INDEX idx_municipis_comarca ON ops.municipis(codi_comarca);
 -- ============================================================================
 
 CREATE TABLE ops.centres (
-    codi_centre     VARCHAR(8)      PRIMARY KEY,   -- format oficial del Dept. d'Educació
-    nom             TEXT         NOT NULL,
-    tipus           TEXT         NOT NULL
-                                 CHECK (tipus IN ('INS','CEIP','ESCOLA','EOI','CFA','ZER','SES')),
-    titularitat     TEXT         NOT NULL DEFAULT 'PUBLIC'
-                                 CHECK (titularitat IN ('PUBLIC','CONCERTAT')),
-    codi_ine        VARCHAR(6)      NOT NULL REFERENCES ops.municipis(codi_ine),
+    codi_centre     VARCHAR(8)   PRIMARY KEY,   -- codi oficial del Registre de Centres Docents
+    denominacio     TEXT         NOT NULL,
+    -- Naturalesa i titularitat venen codificades a la font. Les guardem
+    -- tal com arriben (codi + nom) sense reinterpretar-les.
+    codi_naturalesa VARCHAR(2),
+    nom_naturalesa  TEXT,                       -- Public / Privat
+    codi_titularitat VARCHAR(4),
+    nom_titularitat TEXT,                       -- Departament d'Educacio, Cooperatives...
+    -- Localitzacio
+    codi_ine        VARCHAR(6)   NOT NULL REFERENCES ops.municipis(codi_ine),
     adreca          TEXT,
+    codi_postal     VARCHAR(5),
+    latitud         NUMERIC(9,6),
+    longitud        NUMERIC(9,6),
+    -- Ensenyaments autoritzats. La font els dona com a banderes
+    -- independents, no com una categoria unica: un mateix centre pot
+    -- impartir infantil, primaria i ESO alhora. Guardar-ho aixi permet
+    -- consultes que un sol camp "tipus" perdria. La classificacio en
+    -- INS/CEIP/CFA es fa a la capa de dbt, on queda documentada i testada.
+    te_infantil_1c  BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_infantil_2c  BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_primaria     BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_eso          BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_batxillerat  BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_fp_mitja     BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_fp_superior  BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_adults       BOOLEAN      NOT NULL DEFAULT FALSE,
+    te_especial     BOOLEAN      NOT NULL DEFAULT FALSE,
+    -- Atributs sintetics: no venen de la font, els generem nosaltres.
+    -- Serviran de variables predictores al model del dia 13.
     any_construccio SMALLINT     CHECK (any_construccio BETWEEN 1850 AND 2030),
     superficie_m2   NUMERIC(10,2) CHECK (superficie_m2 > 0),
     num_alumnes     INTEGER      CHECK (num_alumnes >= 0),
-    -- Índex sintètic 0-100 de l'estat de conservació. El farem servir
-    -- com a variable predictora al model d'ML.
     estat_conservacio SMALLINT   CHECK (estat_conservacio BETWEEN 0 AND 100),
+    -- Traçabilitat de la font
+    curs_font       VARCHAR(9),                 -- p.ex. 2025/2026
     actiu           BOOLEAN      NOT NULL DEFAULT TRUE,
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_centres_municipi ON ops.centres(codi_ine);
-CREATE INDEX idx_centres_tipus    ON ops.centres(tipus) WHERE actiu;
+CREATE INDEX idx_centres_eso      ON ops.centres(te_eso) WHERE te_eso;
+CREATE INDEX idx_centres_primaria ON ops.centres(te_primaria) WHERE te_primaria;
 
 CREATE TRIGGER trg_centres_updated
     BEFORE UPDATE ON ops.centres
@@ -109,10 +132,14 @@ CREATE TABLE ops.contractes (
 );
 
 -- Quin lot cobreix quina comarca. Un lot pot cobrir diverses comarques.
+-- Quin lot cobreix quin municipi. Els contractes marc de manteniment
+-- es divideixen per agrupacions territorials de municipis (o per
+-- districtes, a les ciutats grans), no per comarca: dins d'una sola
+-- comarca hi pot haver diversos lots.
 CREATE TABLE ops.lot_cobertura (
     lot             SMALLINT     NOT NULL CHECK (lot BETWEEN 1 AND 3),
-    codi_comarca    VARCHAR(2)      NOT NULL REFERENCES ops.comarques(codi_comarca),
-    PRIMARY KEY (lot, codi_comarca)
+    codi_ine        VARCHAR(6)   NOT NULL REFERENCES ops.municipis(codi_ine),
+    PRIMARY KEY (lot, codi_ine)
 );
 
 
@@ -123,51 +150,87 @@ CREATE TABLE ops.lot_cobertura (
 CREATE TABLE ops.tipus_incidencia (
     codi_tipus      VARCHAR(10)  PRIMARY KEY,
     familia         TEXT         NOT NULL
-                                 CHECK (familia IN ('CLIMATITZACIO','ELECTRICITAT','FONTANERIA',
-                                                    'ESTRUCTURA','FUSTERIA','SEGURETAT','ALTRES')),
+                                 CHECK (familia IN ('CLIMATITZACIO','FONTANERIA','FUSTERIA',
+                                                    'PALETERIA','ELECTRICITAT','ESTRUCTURA','ALTRES')),
     descripcio      TEXT         NOT NULL,
-    prioritat_defecte TEXT       NOT NULL
-                                 CHECK (prioritat_defecte IN ('BAIXA','MITJANA','ALTA','CRITICA')),
-    -- Acord de nivell de servei: hores màximes per resoldre.
-    -- Ens permet calcular compliment de SLA als marts de dbt.
-    sla_hores       INTEGER      NOT NULL CHECK (sla_hores > 0)
+    -- Probabilitats que aquest tipus dispari cadascun dels dos criteris
+    -- d'urgencia. No son atributs fixos: una mateixa averia pot
+    -- interrompre l'activitat o no segons on i quan passi.
+    prob_seguretat  NUMERIC(3,2) NOT NULL DEFAULT 0 CHECK (prob_seguretat BETWEEN 0 AND 1),
+    prob_interrupcio NUMERIC(3,2) NOT NULL DEFAULT 0 CHECK (prob_interrupcio BETWEEN 0 AND 1),
+    -- Pes relatiu d'aquest tipus en el total d'incidencies. Serveix
+    -- al generador per reproduir la distribucio real per families.
+    pes_relatiu     NUMERIC(5,4) NOT NULL CHECK (pes_relatiu > 0),
+    -- Cost tipic d'una actuacio d'aquesta mena, en euros.
+    cost_mitja      NUMERIC(10,2) NOT NULL CHECK (cost_mitja >= 0)
 );
+
+-- Els SLA no depenen del tipus sino de l'impacte, que es com es
+-- prioritza realment al manteniment educatiu: si afecta la seguretat
+-- o interromp l'activitat docent, 24h encara que sigui provisional;
+-- la resta, 5 dies.
+CREATE TABLE ops.sla (
+    codi_sla        VARCHAR(10)  PRIMARY KEY,
+    descripcio      TEXT         NOT NULL,
+    hores_maximes   INTEGER      NOT NULL CHECK (hores_maximes > 0)
+);
+
+INSERT INTO ops.sla (codi_sla, descripcio, hores_maximes) VALUES
+    ('URGENT',  'Afecta seguretat o interromp activitat docent', 24),
+    ('NORMAL',  'Resta d''incidencies',                         120);
 
 CREATE TABLE ops.incidencies (
     id_incidencia   BIGSERIAL    PRIMARY KEY,
-    -- UUID que arriba del stream de Kafka; permet lligar bronze ↔ ops
     uuid_origen     UUID         UNIQUE,
-    codi_centre     VARCHAR(8)      NOT NULL REFERENCES ops.centres(codi_centre),
+    codi_centre     VARCHAR(8)   NOT NULL REFERENCES ops.centres(codi_centre),
     codi_tipus      VARCHAR(10)  NOT NULL REFERENCES ops.tipus_incidencia(codi_tipus),
-    prioritat       TEXT         NOT NULL
-                                 CHECK (prioritat IN ('BAIXA','MITJANA','ALTA','CRITICA')),
+    -- La prioritat no es un atribut lliure: es deriva de si la
+    -- incidencia afecta la seguretat o interromp l'activitat docent.
+    -- Aixi es com es prioritza realment al manteniment educatiu.
+    requereix_seguretat BOOLEAN  NOT NULL DEFAULT FALSE,
+    interromp_activitat BOOLEAN  NOT NULL DEFAULT FALSE,
     estat           TEXT         NOT NULL DEFAULT 'OBERTA'
-                                 CHECK (estat IN ('OBERTA','ASSIGNADA','EN_CURS','RESOLTA','TANCADA','ANULADA')),
+                                 CHECK (estat IN ('OBERTA','ASSIGNADA','EN_CURS',
+                                                  'RESOLTA_PROVISIONAL','RESOLTA','TANCADA','ANULADA')),
     descripcio      TEXT,
     canal_entrada   TEXT         CHECK (canal_entrada IN ('TELEFON','WEB','SENSOR','INSPECCIO')),
     data_obertura   TIMESTAMPTZ  NOT NULL,
     data_assignacio TIMESTAMPTZ,
-    data_resolucio  TIMESTAMPTZ,
+    -- Dues dates de resolucio, no una. Una avaria de calefaccio al
+    -- gener es tapa en 24h amb una solucio temporal i es resol de
+    -- veritat setmanes despres. Barrejar-les distorsionaria el
+    -- compliment de SLA, que es mesura contra la provisional.
+    data_resolucio_provisional TIMESTAMPTZ,
+    data_resolucio_definitiva  TIMESTAMPTZ,
     cost_estimat    NUMERIC(12,2) CHECK (cost_estimat >= 0),
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    -- Coherència temporal. Sense això, les dades sintètiques generaran
-    -- SLA negatius i et passaràs una tarda depurant dbt en comptes del generador.
-    CONSTRAINT chk_incidencia_temps
-        CHECK (data_resolucio IS NULL OR data_resolucio >= data_obertura),
-    CONSTRAINT chk_incidencia_resolta
-        CHECK (estat NOT IN ('RESOLTA','TANCADA') OR data_resolucio IS NOT NULL)
+    CONSTRAINT chk_inc_prov_posterior
+        CHECK (data_resolucio_provisional IS NULL
+               OR data_resolucio_provisional >= data_obertura),
+    CONSTRAINT chk_inc_def_posterior
+        CHECK (data_resolucio_definitiva IS NULL
+               OR data_resolucio_definitiva >= data_obertura),
+    -- Si hi ha les dues, la definitiva mai pot precedir la provisional
+    CONSTRAINT chk_inc_ordre_resolucions
+        CHECK (data_resolucio_provisional IS NULL
+               OR data_resolucio_definitiva IS NULL
+               OR data_resolucio_definitiva >= data_resolucio_provisional),
+    CONSTRAINT chk_inc_resolta
+        CHECK (estat NOT IN ('RESOLTA','TANCADA')
+               OR data_resolucio_definitiva IS NOT NULL)
 );
 
-CREATE INDEX idx_inc_centre     ON ops.incidencies(codi_centre);
-CREATE INDEX idx_inc_obertura   ON ops.incidencies(data_obertura);
-CREATE INDEX idx_inc_estat      ON ops.incidencies(estat) WHERE estat NOT IN ('TANCADA','ANULADA');
-CREATE INDEX idx_inc_tipus      ON ops.incidencies(codi_tipus);
+CREATE INDEX idx_inc_centre   ON ops.incidencies(codi_centre);
+CREATE INDEX idx_inc_obertura ON ops.incidencies(data_obertura);
+CREATE INDEX idx_inc_estat    ON ops.incidencies(estat) WHERE estat NOT IN ('TANCADA','ANULADA');
+CREATE INDEX idx_inc_tipus    ON ops.incidencies(codi_tipus);
+CREATE INDEX idx_inc_urgents  ON ops.incidencies(data_obertura)
+    WHERE requereix_seguretat OR interromp_activitat;
 
 CREATE TRIGGER trg_inc_updated
     BEFORE UPDATE ON ops.incidencies
     FOR EACH ROW EXECUTE FUNCTION ops.set_updated_at();
-
 
 CREATE TABLE ops.actuacions (
     id_actuacio     BIGSERIAL    PRIMARY KEY,
