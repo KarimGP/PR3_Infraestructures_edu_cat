@@ -116,7 +116,10 @@ def construeix_event(rng, centres, tipus_codis, tipus_pesos, moment):
     event = {
         "event_id": str(uuid.UUID(bytes=rng.bytes(16))),
         "event_type": tipus_event,
-        "event_ts": moment.isoformat(),
+        # Flink espera ISO-8601 amb mil·lisegons i sufix Z. El isoformat()
+        # de Python dona microsegons i offset +00:00, que el parser JSON de
+        # Flink no accepta per a TIMESTAMP_LTZ(3).
+        "event_ts": moment.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
         "codi_centre": codi_centre,
     }
 
