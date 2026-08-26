@@ -1,0 +1,133 @@
+version: 2
+
+models:
+  - name: dim_centre
+    description: >
+      Dimensio de centre educatiu, desnormalitzada amb tot el context
+      territorial. Gra: un registre per centre.
+    columns:
+      - name: codi_centre
+        description: Clau primaria. Codi oficial del Registre de Centres Docents.
+        data_tests: [unique, not_null]
+      - name: tipus_centre
+        description: >
+          Classificacio derivada de les banderes d'ensenyament. ALTRES
+          agrupa els centres d'ensenyaments artistics (musica, dansa),
+          que la font recull amb banderes no mapejades.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['INSTITUT', 'ESCOLA', 'LLAR_INFANTS', 'ADULTS',
+                       'FORMACIO_PROFESSIONAL', 'EDUCACIO_ESPECIAL', 'ALTRES']
+      - name: provincia
+        data_tests:
+          - accepted_values:
+              values: ['Barcelona', 'Girona', 'Lleida', 'Tarragona']
+      - name: num_ensenyaments
+        description: Quants ensenyaments diferents imparteix el centre.
+
+  - name: dim_temps
+    description: >
+      Dimensio de temps amb un registre per dia, continua i sense forats.
+      Imprescindible per a la intel·ligencia temporal de Power BI.
+      Inclou el curs escolar (setembre-agost), propi del domini educatiu.
+    columns:
+      - name: id_data
+        description: Clau numerica en format YYYYMMDD.
+        data_tests: [unique, not_null]
+      - name: data
+        data_tests: [unique, not_null]
+      - name: curs_escolar
+        description: Curs al qual pertany la data (p.ex. 2024/2025).
+        data_tests: [not_null]
+
+  - name: dim_tipus_incidencia
+    description: Cataleg de tipus d'averia amb familia i tram de cost.
+    columns:
+      - name: codi_tipus
+        data_tests: [unique, not_null]
+      - name: tram_cost
+        data_tests:
+          - accepted_values:
+              values: ['BAIX', 'MITJA', 'ALT', 'MOLT_ALT']
+
+  - name: dim_empresa
+    description: Empreses adjudicataries amb el seu lot territorial.
+    columns:
+      - name: nif_empresa
+        data_tests: [unique, not_null]
+
+  - name: fct_incidencies
+    description: >
+      Fet d'incidencies de manteniment. GRA: una fila per incidencia.
+      El cost_real ve agregat de les actuacions; el cost_estimat es la
+      previsio inicial.
+    columns:
+      - name: id_incidencia
+        description: Clau primaria del fet.
+        data_tests: [unique, not_null]
+      - name: codi_centre
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_centre')
+              field: codi_centre
+      - name: codi_tipus
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_tipus_incidencia')
+              field: codi_tipus
+      - name: id_data_obertura
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_temps')
+              field: id_data
+      - name: codi_sla
+        description: URGENT si afecta seguretat o interromp activitat; NORMAL la resta.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['URGENT', 'NORMAL']
+      - name: compleix_sla
+        description: >
+          NULL vol dir "encara no avaluable" (incidencia oberta), no
+          "incomplert". Aquesta distincio evita inflar la metrica.
+      - name: cost_real
+        description: Suma dels costos de totes les actuacions de la incidencia.
+        data_tests: [not_null]
+
+  - name: fct_certificacions
+    description: >
+      Fet de certificacions d'obra. GRA: una fila per certificacio.
+      import_previst es un atribut del PROJECTE: per sumar-lo
+      correctament cal fer servir import_previst_prorratejat.
+    columns:
+      - name: id_certificacio
+        data_tests: [unique, not_null]
+      - name: codi_centre
+        data_tests:
+          - relationships:
+              to: ref('dim_centre')
+              field: codi_centre
+      - name: id_data_certificacio
+        data_tests:
+          - relationships:
+              to: ref('dim_temps')
+              field: id_data
+
+  - name: fct_events_streaming
+    description: >
+      Fet d'esdeveniments agregats per Flink. GRA: una fila per finestra
+      de 5 minuts, centre i tipus d'esdeveniment.
+      LIMITACIO: valor_mitja i valor_max barregen magnituds heterogenies
+      (temperatura, CO2, consum). La mesura fiable es num_events.
+    columns:
+      - name: num_events
+        data_tests: [not_null]
+      - name: event_type
+        data_tests:
+          - accepted_values:
+              values: ['LECTURA_SENSOR', 'INCIDENCIA_OBERTA',
+                       'CANVI_ESTAT', 'ACTUACIO_REGISTRADA']

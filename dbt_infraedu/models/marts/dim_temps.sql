@@ -13,8 +13,8 @@
 -- El calendari escolar (curs de setembre a agost) es propi del domini
 -- educatiu i no el dona cap funcio estandard.
 
-{% set data_inici = '2023-09-01' %}
-{% set data_fi = '2026-12-31' %}
+{% set data_inici = '2023-01-01' %}
+{% set data_fi = '2029-12-31' %}
 
 with dies as (
     select generate_series(

@@ -1,0 +1,162 @@
+version: 2
+
+models:
+  - name: stg_centres
+    description: >
+      Centres educatius actius. Ubicacio i ensenyaments son dades REALS
+      del Directori de centres docents; mida, antiguitat i estat de
+      conservacio son SINTETICS.
+    columns:
+      - name: codi_centre
+        description: Codi oficial del Registre de Centres Docents.
+        data_tests:
+          - unique
+          - not_null
+      - name: codi_ine
+        description: Municipi on esta ubicat el centre.
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_municipis')
+              field: codi_ine
+      - name: latitud
+        data_tests:
+          - not_null
+      - name: longitud
+        data_tests:
+          - not_null
+
+  - name: stg_municipis
+    description: Municipis de Catalunya amb codi INE (font real).
+    columns:
+      - name: codi_ine
+        data_tests: [unique, not_null]
+      - name: codi_comarca
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_comarques')
+              field: codi_comarca
+
+  - name: stg_comarques
+    description: Comarques amb la seva provincia (font real).
+    columns:
+      - name: codi_comarca
+        data_tests: [unique, not_null]
+      - name: provincia
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['Barcelona', 'Girona', 'Lleida', 'Tarragona']
+
+  - name: stg_incidencies
+    description: >
+      Incidencies de manteniment, excloses les anul·lades. Te DUES dates
+      de resolucio: provisional (restabliment) i definitiva (reparacio).
+    columns:
+      - name: id_incidencia
+        data_tests: [unique, not_null]
+      - name: codi_centre
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_centres')
+              field: codi_centre
+      - name: codi_tipus
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_tipus_incidencia')
+              field: codi_tipus
+      - name: estat
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['OBERTA', 'ASSIGNADA', 'EN_CURS',
+                       'RESOLTA_PROVISIONAL', 'RESOLTA', 'TANCADA']
+      - name: data_obertura
+        data_tests: [not_null]
+
+  - name: stg_actuacions
+    description: Visites d'operaris amb hores i costos desglossats.
+    columns:
+      - name: id_actuacio
+        data_tests: [unique, not_null]
+      - name: id_incidencia
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_incidencies')
+              field: id_incidencia
+      - name: nif_empresa
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_empreses')
+              field: nif_empresa
+
+  - name: stg_tipus_incidencia
+    description: Cataleg de tipus d'averia amb familia i cost tipic.
+    columns:
+      - name: codi_tipus
+        data_tests: [unique, not_null]
+      - name: familia
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['CLIMATITZACIO', 'FONTANERIA', 'FUSTERIA',
+                       'PALETERIA', 'ELECTRICITAT', 'ESTRUCTURA', 'ALTRES']
+
+  - name: stg_empreses
+    description: Empreses adjudicataries dels lots de manteniment.
+    columns:
+      - name: nif_empresa
+        data_tests: [unique, not_null]
+
+  - name: stg_projectes
+    description: Projectes d'inversio plurianual per centre.
+    columns:
+      - name: id_projecte
+        data_tests: [unique, not_null]
+      - name: codi_projecte
+        data_tests: [unique, not_null]
+      - name: codi_centre
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_centres')
+              field: codi_centre
+      - name: tipologia
+        data_tests:
+          - accepted_values:
+              values: ['AMPLIACIO', 'REFORMA', 'NOVA_CONSTRUCCIO',
+                       'EFICIENCIA_ENERGETICA', 'ACCESSIBILITAT',
+                       'RETIRADA_AMIANT']
+
+  - name: stg_certificacions
+    description: Certificacions d'obra amb import executat.
+    columns:
+      - name: id_certificacio
+        data_tests: [unique, not_null]
+      - name: id_projecte
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_projectes')
+              field: id_projecte
+
+  - name: stg_events
+    description: >
+      Esdeveniments del stream amb els camps del JSONB extrets a
+      columnes. Font: bronze.raw_events, escrit per Flink.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: event_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['LECTURA_SENSOR', 'INCIDENCIA_OBERTA',
+                       'CANVI_ESTAT', 'ACTUACIO_REGISTRADA']
+      - name: event_ts
+        data_tests: [not_null]
