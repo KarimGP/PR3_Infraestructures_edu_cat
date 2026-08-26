@@ -1,0 +1,54 @@
+version: 2
+
+sources:
+  - name: ops
+    description: >
+      Capa transaccional del sistema de gestio d'infraestructures
+      educatives. Centres, municipis i comarques son dades REALS del
+      Directori de centres docents de la Generalitat; incidencies,
+      actuacions i projectes son sintetiques.
+    schema: ops
+    tables:
+      - name: centres
+        description: Centres educatius amb ubicacio i ensenyaments (font real).
+      - name: municipis
+        description: Municipis de Catalunya amb codi INE (font real).
+      - name: comarques
+        description: Comarques amb la seva provincia (font real).
+      - name: tipus_incidencia
+        description: Cataleg de tipus d'averia amb familia i cost tipic.
+      - name: sla
+        description: Nivells de servei. URGENT 24h, NORMAL 120h.
+      - name: incidencies
+        description: >
+          Incidencies de manteniment. Te DUES dates de resolucio: la
+          provisional (restabliment del servei, contra la qual es mesura
+          l'SLA) i la definitiva (reparacio real).
+      - name: actuacions
+        description: Visites d'operaris amb hores i costos.
+      - name: empreses
+        description: Empreses adjudicataries dels lots de manteniment.
+      - name: contractes
+        description: Contractes marc per lot territorial.
+      - name: lot_cobertura
+        description: Quin lot de manteniment cobreix quin municipi.
+      - name: projectes_inversio
+        description: Projectes d'inversio plurianual per centre.
+      - name: certificacions
+        description: Execucio pressupostaria real contra el previst.
+
+  - name: bronze
+    description: >
+      Aterratge dels esdeveniments de Kafka, escrit per Flink. Sense
+      transformar, amb el payload en JSONB i les metadades de
+      procedencia (topic, particio, offset).
+    schema: bronze
+    tables:
+      - name: raw_events
+        description: Esdeveniments crus del topic infraedu.events.
+        loaded_at_field: ingested_at
+        freshness:
+          warn_after: {count: 12, period: hour}
+          error_after: {count: 48, period: hour}
+      - name: agg_events_5min
+        description: Agregacions per finestres TUMBLE de 5 minuts (Flink).

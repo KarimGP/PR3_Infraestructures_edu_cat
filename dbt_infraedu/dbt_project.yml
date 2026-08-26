@@ -1,0 +1,32 @@
+name: 'dbt_infraedu'
+version: '1.0.0'
+profile: 'dbt_infraedu'
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  dbt_infraedu:
+    # Staging: nomes neteja i renaming, cap logica de negoci.
+    # Materialitzats com a VISTES perque no guarden res que no es
+    # pugui recalcular a l'instant, i aixi no dupliquem dades.
+    staging:
+      +materialized: view
+      +schema: staging
+    # Intermediate: passos de calcul reutilitzables.
+    intermediate:
+      +materialized: view
+      +schema: staging
+    # Marts: l'esquema en estrella que consumira Power BI.
+    # Materialitzats com a TAULES perque es consulten molt i han de
+    # ser rapids.
+    marts:
+      +materialized: table
+      +schema: marts
