@@ -10,3 +10,7 @@ dbt_packages/
 logs/
 *.pbix
 data/raw/
+mlruns.db
+mlruns/
+mlartifacts/
+ml/*.png
