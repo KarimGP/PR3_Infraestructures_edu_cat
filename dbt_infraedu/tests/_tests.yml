@@ -1,0 +1,12 @@
+version: 2
+
+data_tests:
+  # Aquest test detecta un defecte conegut de la font, no del pipeline.
+  # Per aixo avisa en lloc de fallar: no ha de bloquejar cap execucio,
+  # pero si que ha de ser visible. Nomes falla si el problema es fa
+  # sistematic (mes de 50 centres afectats).
+  - name: assert_coordenades_coherents_comarca
+    config:
+      severity: warn
+      warn_if: ">0"
+      error_if: ">50"
