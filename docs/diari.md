@@ -8,6 +8,12 @@ Si has de consultar-ho per escriure-ho, és que encara no ho tens, i això
 
 Tres preguntes per dia:
 
+Buenas tardes, se trata de una boda y el servicio sería para la ida a las 16.00h y la vuelta a Barcelona nos interesaría en dos turnos, uno a las 00.30h y el otro a las 02.00h. La vuelta será más repartido y como mucho habrá 25 personas por turno. 
+
+También queremos información para un servicio el día 5/10 para 25 personas. Ida a las 11h Barcelona-Cavas Codorniu (Penedés), a las 16h Cavas Codorniu-Bodegas Torres (Penedés) y a las 18h Bodegas Torres-Barcelona.
+
+Saludos
+
 1. **Què he fet avui** — en dues o tres frases, com si ho expliquessis a
    un company que no hi era.
 2. **Per què** — quina decisió hi havia darrere. Aquesta és la que compta

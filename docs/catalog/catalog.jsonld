@@ -1,0 +1,436 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "vcard": "http://www.w3.org/2006/vcard/ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@type": "dcat:Catalog",
+  "dct:title": {
+    "@value": "Cataleg d'infraestructures educatives de Catalunya",
+    "@language": "ca"
+  },
+  "dct:description": {
+    "@value": "Conjunts de dades sobre centres educatius, manteniment i inversio en infraestructures educatives. Els centres son dades reals derivades del Registre de Centres Docents; la resta son dades simulades amb finalitat demostrativa.",
+    "@language": "ca"
+  },
+  "dct:publisher": {
+    "@type": "foaf:Agent",
+    "foaf:name": "Projecte PR3 - Portfolio de data engineering"
+  },
+  "dct:issued": {
+    "@value": "2026-09-06",
+    "@type": "xsd:date"
+  },
+  "dct:language": [
+    {
+      "@id": "http://publications.europa.eu/resource/authority/language/CAT"
+    }
+  ],
+  "dcat:dataset": [
+    {
+      "@type": "dcat:Dataset",
+      "@id": "#centres-educatius-catalunya",
+      "dct:identifier": "centres-educatius-catalunya",
+      "dct:title": [
+        {
+          "@value": "Centres educatius de Catalunya",
+          "@language": "ca"
+        },
+        {
+          "@value": "Centros educativos de Cataluña",
+          "@language": "es"
+        }
+      ],
+      "dct:description": {
+        "@value": "Directori de centres docents de Catalunya amb ubicacio, titularitat i ensenyaments autoritzats. Dades derivades del Registre de Centres Docents de la Generalitat de Catalunya. Inclou classificacio per tipus de centre i atributs d'infraestructura de caracter simulat.",
+        "@language": "ca"
+      },
+      "dct:publisher": {
+        "@type": "foaf:Agent",
+        "foaf:name": "Projecte PR3 - Portfolio de data engineering"
+      },
+      "dcat:contactPoint": {
+        "@type": "vcard:Organization",
+        "vcard:hasURL": {
+          "@id": "https://github.com/KarimGP/PR3_Infraestructures_edu_cat"
+        }
+      },
+      "dcat:theme": {
+        "@id": "http://publications.europa.eu/resource/authority/data-theme/EDUC"
+      },
+      "dct:accrualPeriodicity": {
+        "@id": "http://publications.europa.eu/resource/authority/frequency/ANNUAL"
+      },
+      "dcat:keyword": [
+        "educacio",
+        "centres docents",
+        "infraestructures",
+        "catalunya"
+      ],
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2025-09-01",
+          "@type": "xsd:date"
+        },
+        "dcat:endDate": {
+          "@value": "2026-08-31",
+          "@type": "xsd:date"
+        }
+      },
+      "dct:issued": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:modified": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:license": {
+        "@id": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Centres educatius de Catalunya (CSV)",
+          "dcat:accessURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/centres-educatius-catalunya.csv"
+          },
+          "dcat:downloadURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/centres-educatius-catalunya.csv"
+          },
+          "dct:format": {
+            "@id": "https://www.iana.org/assignments/media-types/text/csv"
+          },
+          "dct:license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "dct:modified": {
+            "@value": "2026-09-06",
+            "@type": "xsd:date"
+          },
+          "dcat:byteSize": {
+            "@value": "1306733",
+            "@type": "xsd:nonNegativeInteger"
+          }
+        },
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Centres educatius de Catalunya (PARQUET)",
+          "dcat:accessURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/centres-educatius-catalunya.parquet"
+          },
+          "dcat:downloadURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/centres-educatius-catalunya.parquet"
+          },
+          "dct:format": {
+            "@id": "https://www.iana.org/assignments/media-types/application/vnd.apache.parquet"
+          },
+          "dct:license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "dct:modified": {
+            "@value": "2026-09-06",
+            "@type": "xsd:date"
+          },
+          "dcat:byteSize": {
+            "@value": "378428",
+            "@type": "xsd:nonNegativeInteger"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "#incidencies-manteniment-educatiu",
+      "dct:identifier": "incidencies-manteniment-educatiu",
+      "dct:title": [
+        {
+          "@value": "Incidencies de manteniment en centres educatius",
+          "@language": "ca"
+        },
+        {
+          "@value": "Incidencias de mantenimiento en centros educativos",
+          "@language": "es"
+        }
+      ],
+      "dct:description": {
+        "@value": "Registre d'incidencies de manteniment correctiu en centres educatius del Barcelones, amb tipologia d'averia, temps de resolucio i compliment d'acords de nivell de servei. DADES SIMULADES amb patrons operatius reals del sector.",
+        "@language": "ca"
+      },
+      "dct:publisher": {
+        "@type": "foaf:Agent",
+        "foaf:name": "Projecte PR3 - Portfolio de data engineering"
+      },
+      "dcat:contactPoint": {
+        "@type": "vcard:Organization",
+        "vcard:hasURL": {
+          "@id": "https://github.com/KarimGP/PR3_Infraestructures_edu_cat"
+        }
+      },
+      "dcat:theme": {
+        "@id": "http://publications.europa.eu/resource/authority/data-theme/EDUC"
+      },
+      "dct:accrualPeriodicity": {
+        "@id": "http://publications.europa.eu/resource/authority/frequency/DAILY"
+      },
+      "dcat:keyword": [
+        "manteniment",
+        "incidencies",
+        "sla",
+        "infraestructures"
+      ],
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2023-09-01",
+          "@type": "xsd:date"
+        },
+        "dcat:endDate": {
+          "@value": "2026-08-31",
+          "@type": "xsd:date"
+        }
+      },
+      "dct:issued": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:modified": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:license": {
+        "@id": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Incidencies de manteniment en centres educatius (CSV)",
+          "dcat:accessURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/incidencies-manteniment-educatiu.csv"
+          },
+          "dcat:downloadURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/incidencies-manteniment-educatiu.csv"
+          },
+          "dct:format": {
+            "@id": "https://www.iana.org/assignments/media-types/text/csv"
+          },
+          "dct:license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "dct:modified": {
+            "@value": "2026-09-06",
+            "@type": "xsd:date"
+          },
+          "dcat:byteSize": {
+            "@value": "18612224",
+            "@type": "xsd:nonNegativeInteger"
+          }
+        },
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Incidencies de manteniment en centres educatius (PARQUET)",
+          "dcat:accessURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/incidencies-manteniment-educatiu.parquet"
+          },
+          "dcat:downloadURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/incidencies-manteniment-educatiu.parquet"
+          },
+          "dct:format": {
+            "@id": "https://www.iana.org/assignments/media-types/application/vnd.apache.parquet"
+          },
+          "dct:license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "dct:modified": {
+            "@value": "2026-09-06",
+            "@type": "xsd:date"
+          },
+          "dcat:byteSize": {
+            "@value": "7015599",
+            "@type": "xsd:nonNegativeInteger"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "#inversio-infraestructures-educatives",
+      "dct:identifier": "inversio-infraestructures-educatives",
+      "dct:title": [
+        {
+          "@value": "Inversio en infraestructures educatives",
+          "@language": "ca"
+        },
+        {
+          "@value": "Inversion en infraestructuras educativas",
+          "@language": "es"
+        }
+      ],
+      "dct:description": {
+        "@value": "Projectes d'inversio plurianual en centres educatius amb import previst, certificacions d'obra i grau d'execucio pressupostaria per tipologia d'actuacio. DADES SIMULADES.",
+        "@language": "ca"
+      },
+      "dct:publisher": {
+        "@type": "foaf:Agent",
+        "foaf:name": "Projecte PR3 - Portfolio de data engineering"
+      },
+      "dcat:contactPoint": {
+        "@type": "vcard:Organization",
+        "vcard:hasURL": {
+          "@id": "https://github.com/KarimGP/PR3_Infraestructures_edu_cat"
+        }
+      },
+      "dcat:theme": {
+        "@id": "http://publications.europa.eu/resource/authority/data-theme/GOVE"
+      },
+      "dct:accrualPeriodicity": {
+        "@id": "http://publications.europa.eu/resource/authority/frequency/MONTHLY"
+      },
+      "dcat:keyword": [
+        "inversio publica",
+        "pressupost",
+        "obra publica",
+        "educacio"
+      ],
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2023-01-01",
+          "@type": "xsd:date"
+        },
+        "dcat:endDate": {
+          "@value": "2028-12-31",
+          "@type": "xsd:date"
+        }
+      },
+      "dct:issued": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:modified": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:license": {
+        "@id": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Inversio en infraestructures educatives (CSV)",
+          "dcat:accessURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/inversio-infraestructures-educatives.csv"
+          },
+          "dcat:downloadURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/inversio-infraestructures-educatives.csv"
+          },
+          "dct:format": {
+            "@id": "https://www.iana.org/assignments/media-types/text/csv"
+          },
+          "dct:license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "dct:modified": {
+            "@value": "2026-09-06",
+            "@type": "xsd:date"
+          },
+          "dcat:byteSize": {
+            "@value": "62383",
+            "@type": "xsd:nonNegativeInteger"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "#prediccions-incidencies-manteniment",
+      "dct:identifier": "prediccions-incidencies-manteniment",
+      "dct:title": [
+        {
+          "@value": "Prediccions d'incidencies de manteniment",
+          "@language": "ca"
+        },
+        {
+          "@value": "Predicciones de incidencias de mantenimiento",
+          "@language": "es"
+        }
+      ],
+      "dct:description": {
+        "@value": "Prediccio a 30 dies del volum d'incidencies de manteniment per familia d'averia, generada amb un model XGBoost validat contra una baseline naif. Sortida d'un model predictiu, no dades observades.",
+        "@language": "ca"
+      },
+      "dct:publisher": {
+        "@type": "foaf:Agent",
+        "foaf:name": "Projecte PR3 - Portfolio de data engineering"
+      },
+      "dcat:contactPoint": {
+        "@type": "vcard:Organization",
+        "vcard:hasURL": {
+          "@id": "https://github.com/KarimGP/PR3_Infraestructures_edu_cat"
+        }
+      },
+      "dcat:theme": {
+        "@id": "http://publications.europa.eu/resource/authority/data-theme/EDUC"
+      },
+      "dct:accrualPeriodicity": {
+        "@id": "http://publications.europa.eu/resource/authority/frequency/MONTHLY"
+      },
+      "dcat:keyword": [
+        "prediccio",
+        "machine learning",
+        "manteniment"
+      ],
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2026-09-01",
+          "@type": "xsd:date"
+        },
+        "dcat:endDate": {
+          "@value": "2026-09-30",
+          "@type": "xsd:date"
+        }
+      },
+      "dct:issued": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:modified": {
+        "@value": "2026-09-06",
+        "@type": "xsd:date"
+      },
+      "dct:license": {
+        "@id": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Prediccions d'incidencies de manteniment (CSV)",
+          "dcat:accessURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/prediccions-incidencies-manteniment.csv"
+          },
+          "dcat:downloadURL": {
+            "@id": "https://raw.githubusercontent.com/KarimGP/PR3_Infraestructures_edu_cat/main/data/public/prediccions-incidencies-manteniment.csv"
+          },
+          "dct:format": {
+            "@id": "https://www.iana.org/assignments/media-types/text/csv"
+          },
+          "dct:license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "dct:modified": {
+            "@value": "2026-09-06",
+            "@type": "xsd:date"
+          },
+          "dcat:byteSize": {
+            "@value": "12959",
+            "@type": "xsd:nonNegativeInteger"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -385,3 +385,28 @@ GRANT USAGE ON SCHEMA ops, bronze, meta TO powerbi_ro;
 GRANT SELECT ON ALL TABLES IN SCHEMA ops, bronze, meta TO powerbi_ro;
 ALTER DEFAULT PRIVILEGES IN SCHEMA ops, bronze, meta
     GRANT SELECT ON TABLES TO powerbi_ro;
+
+
+-- ============================================================================
+-- Permisos sobre els esquemes de dbt
+--
+-- Aquests esquemes encara no existeixen quan s'executa aquest fitxer:
+-- els crea dbt la primera vegada que s'executa. Els creem aqui buits
+-- perque l'usuari de lectura hi pugui tenir permisos des del primer
+-- moment, i afegim ALTER DEFAULT PRIVILEGES perque els mantingui cada
+-- cop que dbt recrei una taula.
+-- ============================================================================
+CREATE SCHEMA IF NOT EXISTS dbt_marts;
+CREATE SCHEMA IF NOT EXISTS dbt_staging;
+
+GRANT USAGE ON SCHEMA dbt_marts, dbt_staging TO powerbi_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA dbt_marts, dbt_staging TO powerbi_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA dbt_marts, dbt_staging
+    GRANT SELECT ON TABLES TO powerbi_ro;
+
+-- L'esquema ml el crea el script de prediccions, mateixa logica.
+CREATE SCHEMA IF NOT EXISTS ml;
+GRANT USAGE ON SCHEMA ml TO powerbi_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA ml TO powerbi_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA ml
+    GRANT SELECT ON TABLES TO powerbi_ro;
