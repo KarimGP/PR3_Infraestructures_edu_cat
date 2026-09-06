@@ -1,5 +1,7 @@
 # PR3 · Plataforma de dades d'infraestructures educatives de Catalunya
 
+[![dbt CI](https://github.com/KarimGP/PR3_Infraestructures_edu_cat/actions/workflows/dbt_ci.yml/badge.svg)](https://github.com/KarimGP/PR3_Infraestructures_edu_cat/actions/workflows/dbt_ci.yml)
+
 Simulació d'un sistema de gestió de manteniment i inversió en centres
 educatius, construït com a projecte de portfolio de data engineering.
 Cobreix el cicle complet: ingesta en temps real, capa operacional,
@@ -124,6 +126,15 @@ en estrella (4 dimensions, 3 taules de fets).
   defecte de la font (3 centres sobre 5.434), no del pipeline
 
 ---
+### Integració contínua
+
+![dbt CI](https://github.com/KarimGP/PR3_Infraestructures_edu_cat/actions/workflows/dbt_ci.yml/badge.svg)
+
+A cada push que toqui els models o l'esquema, GitHub Actions aixeca un
+PostgreSQL efímer, construeix l'esquema, carrega un conjunt mínim de
+dades deterministes i executa els 19 models amb els 88 tests. La CI no
+depèn de l'API de la Generalitat: hauria de ser lenta i fallaria cada
+cop que el servei extern estigués caigut.
 
 ## Model predictiu
 
