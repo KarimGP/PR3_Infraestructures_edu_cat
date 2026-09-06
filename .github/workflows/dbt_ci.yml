@@ -18,7 +18,7 @@ on:
     paths:
       - 'dbt_infraedu/**'
       - 'sql/**'
-      - '.github/workflows/**'
+      - '.github/**'
   pull_request:
     branches: [main]
   workflow_dispatch:        # permet llancar-lo a ma des de GitHub
