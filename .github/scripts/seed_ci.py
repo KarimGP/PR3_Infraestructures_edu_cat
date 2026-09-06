@@ -36,15 +36,19 @@ cur.execute("INSERT INTO ops.municipis (codi_ine, nom, codi_comarca) "
 
 # ── Centres ──────────────────────────────────────────────────────
 centres = [
-    ("08000001", "Institut de prova", "080193", False, False, False,
-     True, True, False, False, False, False, 1985, 4200.0, 620, 65),
-    ("08000002", "Escola de prova", "080193", False, True, True,
-     False, False, False, False, False, False, 2005, 2100.0, 310, 82),
-    ("08000003", "Llar d'infants de prova", "080193", True, False, False,
-     False, False, False, False, False, False, 2015, 800.0, 75, 91),
+    ("08000001", "Institut de prova", "080193", 41.4501, 2.2474,
+     False, False, False, True, True, False, False, False, False,
+     1985, 4200.0, 620, 65),
+    ("08000002", "Escola de prova", "080193", 41.4489, 2.2412,
+     False, True, True, False, False, False, False, False, False,
+     2005, 2100.0, 310, 82),
+    ("08000003", "Llar d'infants de prova", "080193", 41.4530, 2.2501,
+     True, False, False, False, False, False, False, False, False,
+     2015, 800.0, 75, 91),
 ]
 execute_values(cur, """
     INSERT INTO ops.centres (codi_centre, denominacio, codi_ine,
+        latitud, longitud,
         te_infantil_1c, te_infantil_2c, te_primaria, te_eso,
         te_batxillerat, te_fp_mitja, te_fp_superior, te_adults,
         te_especial, any_construccio, superficie_m2, num_alumnes,
